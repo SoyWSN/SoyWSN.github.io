@@ -304,12 +304,10 @@
     background:rgba(252,152,103,0.05);
   }
   .card-ascii{
+    position:relative;
     font-family:'IBM Plex Mono', monospace;
     font-size:9px;
     line-height:1.05;
-    color:var(--pink);
-    opacity:0.75;
-    white-space:pre;
     height:110px;
     overflow:hidden;
     margin-bottom:18px;
@@ -317,6 +315,20 @@
     padding:8px;
     background:#050505;
     letter-spacing:0.02em;
+  }
+  .ascii-pattern{
+    color:var(--pink);
+    opacity:0.75;
+    white-space:pre;
+  }
+  .card-preview-img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    z-index:1;
   }
   .card h3{
     font-size:17px;
@@ -812,8 +824,7 @@
     <div class="card" data-repo="#" data-images="assets/og1.png,assets/og2.png,assets/og3.png">
       <div class="card-ascii" data-ascii="3"></div>
       <h3>Centro Óptico Gutiérrez<span>2025</span></h3>
-      <p>Landing page para centro óptico local, diseñado para atraer clientes y mostrar sus procedimientos, catálogo, marcas y ubicación. Animación de logos, videos promocionales y banners.
-      </p>
+      <p>Landing page para centro óptico local, diseñado para atraer clientes y mostrar sus procedimientos, catálogo, marcas y ubicación. Animación de logos, videos promocionales y banners.</p>
       <div class="tags"><span>HTML</span><span>CSS</span><span>Javascript</span></div>
       <a class="link" href="#">ver más →</a>
     </div>
@@ -863,7 +874,7 @@
       <div><span class="prompt">Oskar@portafolio</span>:<span class="cmd">~$</span> <span id="typed-cmd"></span><span class="cursor" id="term-cursor"></span></div>
       <div id="term-output" style="margin-top:10px;"></div>
       <div class="term-links">
-        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/SoyWSN?tab=overview&from=2026-07-01&to=2026-07-14" target="_blank" rel="noopener">GitHub</a>
         <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
         <a href="mailto:hello@example.com">Email</a>
       </div>
@@ -1334,7 +1345,32 @@ gsap.registerPlugin(ScrollTrigger);
   ];
   document.querySelectorAll('.card-ascii').forEach(el=>{
     const idx = parseInt(el.dataset.ascii,10) || 0;
-    el.textContent = patterns[idx % patterns.length];
+    const span = document.createElement('div');
+    span.className = 'ascii-pattern';
+    span.textContent = patterns[idx % patterns.length];
+    el.appendChild(span);
+  });
+})();
+
+/* =========================================================
+   3b) CARD PREVIEW IMAGE — first gallery image, ascii as fallback
+   ========================================================= */
+(function initCardPreview(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const firstImage = (card.dataset.images || '').split(',')[0]?.trim();
+    const asciiEl = card.querySelector('.card-ascii');
+    if(!firstImage || !asciiEl) return;
+
+    const img = new Image();
+    img.className = 'card-preview-img';
+    img.alt = card.querySelector('h3')?.childNodes[0]?.textContent.trim() || '';
+    img.addEventListener('load', ()=>{
+      asciiEl.appendChild(img);
+    });
+    img.addEventListener('error', ()=>{
+      console.warn('[card preview] no se pudo cargar la imagen:', firstImage);
+    });
+    img.src = firstImage;
   });
 })();
 
